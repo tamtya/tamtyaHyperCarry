@@ -9,8 +9,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+    <div id="mode-selection-view">
+        <h1>モードを選択してください</h1>
+        <button id="real-world-button">現実世界でつならん</button>
+        <button id="home-button">家からつならん</button>
+    </div>
 
     <div id="game-view">
+        <div id="camera-container" class="hidden">
+            <video id="camera-feed" autoplay playsinline></video>
+            <button id="shutter-button">解答</button>
+        </div>
         <div class="game-background"></div>
 
         <header class="game-header">

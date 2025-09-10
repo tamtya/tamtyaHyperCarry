@@ -8,12 +8,13 @@ const roundDuration = 90; //タイマ秒
 // 問題リスト
 //後日自分で撮った画像に置き換え
 //ランダムは実装がわからないので保留
+//仮の座標を設定済み
 const problems = [
-    { image: "image/West.jpg", coords: [89, 641], info: "西門" },
-    { image: "image/JISEDAI.jpg", coords: [300, 800], info: "次世代食堂" },
-    { image: "image/Academic.jpg", coords: [600, 300], info: "アカデミックシアター" },
-    { image: "image/E_Ground.jpg", coords: [200, 200], info: "Eキャンパス人工芝" },
-    { image: "image/E_Kan.jpg", coords: [750, 1000], info: "E館" }
+    { image: "image/West.jpg", coords: [34.755223, 135.648315], info: "西門" },
+    { image: "image/JISEDAI.jpg", coords: [34.755223, 135.648315], info: "次世代食堂" },
+    { image: "image/Academic.jpg", coords: [34.755223, 135.648315], info: "アカデミックシアター" },
+    { image: "image/E_Ground.jpg", coords: [34.755223, 135.648315], info: "Eキャンパス人工芝" },
+    { image: "image/E_Kan.jpg", coords: [34.755223, 135.648315], info: "E館" }
 ];
 
 //変数
@@ -25,6 +26,7 @@ let guessMarker, answerMarker;
 let guessCoords;
 let timerInterval; //タイマ変数
 let timeLeft; //残り時間
+let currentGameMode = null; //現実世界or家
 
 const gameView = document.getElementById('game-view');
 const resultView = document.getElementById('result-view');
@@ -35,16 +37,25 @@ const roundTitle = document.getElementById('round-title');
 const timerDisplay = document.getElementById('timer-display'); 
 const roundCounterMain = document.getElementById('round-counter-main');
 const resultRoundCounterMain = document.getElementById('result-round-counter-main');
+const modeSelectionView = document.getElementById('mode-selection-view');
+const realWorldButton = document.getElementById('real-world-button');
+const geoguessrButton = document.getElementById('home-button');
+const cameraContainer = document.getElementById('camera-container');
+const cameraFeed = document.getElementById('camera-feed');
+const shutterButton = document.getElementById('shutter-button');
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
     shuffleArray(problems);
     initMiniMap();
     setupRound();
-    guessButton.addEventListener('click', () => handleGuess(false));
-    nextRoundButton.addEventListener('click', handleNextRound);
-});
 
+    realWorldButton.addEventListener('click', () => startGame('real-world'));
+    geoguessrButton.addEventListener('click', () => startGame('home'));
+
+    shutterButton.addEventListener('click', handleRealWorldGuess);
+});
+    
 // 秒を mm:ss 形式の文字列に変換する関数
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -107,11 +118,68 @@ function setupRound() {
     roundCounterMain.textContent = `${currentRound} / ${totalRounds}`;
     
     // 前のラウンドのマーカーを削除
-    if (guessMarker) guessMarker.remove();
-    guessMarker = null;
-    guessCoords = null;
+    if (currentGameMode === 'geoguessr') {
+        if (guessMarker) guessMarker.remove();
+        guessMarker = null;
+        guessCoords = null;
+    }
 
     startTimer();//タイマ
+}
+
+/**
+ * ゲーム開始画面
+ */
+function startGame(mode) {
+    currentGameMode = mode;
+    modeSelectionView.style.display = 'none';
+    gameView.classList.remove('hidden');
+    
+    // GeoGuessrモードの場合
+    if (currentGameMode === 'geoguessr') {
+        initMiniMap();
+        document.querySelector('.game-footer').style.display = 'flex'; // 推測UIを表示
+    } 
+    // 現実探索モードの場合
+    else if (currentGameMode === 'real-world') {
+        startCamera();
+        document.querySelector('.game-footer').style.display = 'none'; // 推測UIを非表示
+        gameBackground.style.display = 'block'; // お題画像は表示
+    }
+
+    currentRound = 1;
+    totalScore = 0;
+    setupRound();
+}
+
+/**
+ * カメラ機能
+ */
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'environment' } // 背面カメラを優先
+        });
+        cameraContainer.classList.remove('hidden');
+        cameraFeed.srcObject = stream;
+    } catch (err) {
+        console.error("カメラへのアクセスが拒否されました:", err);
+        alert("カメラへのアクセスを許可してください。");
+    }
+}
+
+/**
+ * gps機能
+ */
+function getGPSLocation() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject("このブラウザはGPS機能に対応していません。");
+        }
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true // 高精度な位置情報を要求
+        });
+    });
 }
 
 
@@ -149,12 +217,78 @@ function handleGuess(isTimeUp) {
 }
 
 /**
+ * 現実世界つならんでの解答処理
+ */
+async function handleRealWorldGuess() {
+    stopTimer();
+    try {
+        console.log("GPS情報を取得中...");
+        const position = await getGPSLocation();
+        console.log("GPS情報:", position.coords);
+        
+        // 緯度経度をLeafletの形式に変換して距離を計算
+        const userCoords = L.latLng(position.coords.latitude, position.coords.longitude);
+        const answerCoords = L.latLng(currentProblem.coords); // 問題の座標も緯度経度に
+        
+        const distance = userCoords.distanceTo(answerCoords); // 2点間の距離を計算(メートル)
+        
+        let score = 0;
+        // 20メートル以内なら満点
+        if (distance <= 20) {
+            score = maxScore;
+        } else {
+            // 距離に応じてスコアを計算（GeoGuessrモードと同じ式を流用）
+            score = Math.round(maxScore * Math.exp(-0.01 * distance));
+        }
+
+        totalScore += score;
+        showResult(score, distance, answerCoords);
+
+    } catch (err) {
+        console.error("GPS情報の取得に失敗しました:", err);
+        alert("GPS情報の取得に失敗しました。位置情報サービスがオンになっているか確認してください。");
+        startTimer(); // エラーが起きたらタイマーを再開
+    }
+}
+
+// GeoGuessrモードの解答処理 (旧handleGuess)
+function handleGeoguessrGuess(isTimeUp) {
+    // ... 以前のhandleGuessのロジックをここに ...
+    stopTimer();
+    
+    let score = 0;
+    let distance = Infinity; // 距離は無限大としておく
+    const answerCoords = L.latLng(currentProblem.coords[0] / 10000, currentProblem.coords[1] / 10000); //擬似座標
+
+    //後日アラートではなくポップアップで実装
+    if (isTimeUp) {
+        alert("時間切れ！");
+        // スコアは0のまま
+    } else if (!guessCoords) {
+        alert("地図をクリックして場所を推測してください！");
+        startTimer(); // タイマーを再開
+        return;
+    } else {
+        distance = miniMap.distance(guessCoords, answerCoords);
+        score = Math.round(maxScore * Math.exp(-0.01 * distance));
+    }
+    
+    totalScore += score;
+    showResult(score, distance, answerCoords);
+}
+
+/**
  * 結果画面表示
  */
 function showResult(score, distance, answerCoords) {
     // 画面切り替え
     gameView.classList.add('hidden');
     resultView.classList.remove('hidden');
+
+    if (cameraFeed.srcObject) { // カメラストリームを停止
+        cameraFeed.srcObject.getTracks().forEach(track => track.stop());
+        cameraFeed.srcObject = null;
+    }
 
     // 結果UIの更新
     roundTitle.textContent = `Round ${currentRound}`;
@@ -171,6 +305,7 @@ function showResult(score, distance, answerCoords) {
     
     document.getElementById('spot-info').textContent = currentProblem.info;
     const scoreBar = document.getElementById('score-bar');
+    
     setTimeout(() => {
         scoreBar.style.width = `${(score / maxScore) * 100}%`;
     }, 100);
