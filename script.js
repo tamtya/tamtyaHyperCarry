@@ -119,6 +119,12 @@ function setupRound() {
  * 決定ボタン押下時処理
  */
 function handleGuess(isTimeUp) { 
+    // 場所が選択されているかどうかをチェックする
+    if (!isTimeUp && !guessCoords) {
+        alert("地図をクリックして場所を推測してください！");
+        return; // ここで処理を中断。タイマーは動き続けます。
+    }
+    
     stopTimer();
     
     let score = 0;
