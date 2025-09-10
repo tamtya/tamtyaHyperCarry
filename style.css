@@ -19,7 +19,9 @@ body, html {
 
 /* 汎用クラス */
 .hidden {
-    display: none;
+    /* display: none; */
+    visibility: hidden;
+    opacity: 0; 
 }
 
 /* ゲーム画面 */
@@ -85,7 +87,6 @@ body, html {
 
 #result-round-display-container{
     position: absolute;
-     position: absolute;
     top: 12px;
     right: 30px;
 }
@@ -150,6 +151,7 @@ body, html {
 
 
 #result-view {
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
