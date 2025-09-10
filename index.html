@@ -1,0 +1,62 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>つならん</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <div id="game-view">
+        <div class="game-background"></div>
+
+        <header class="game-header">
+            <div class="header-left"></div>
+            <div class="header-center">
+            <div id="timer-display">01:30</div>
+                </div>
+            <div class="header-right">
+            <div id="round-display-container">
+                <span class="round-label">ラウンド</span>
+                <span id="round-counter-main" class="round-value">1 / 5</span>
+            </div>
+            </div>
+        </header>
+
+        <div class="game-footer">
+            <div id="mini-map-container">
+                <div id="mini-map"></div>
+            </div>
+            <button id="guess-button">ここに決定</button>
+        </div>
+    </div>
+
+    <div id="result-view" class="hidden">
+        <div class="result-content">
+            <div id="result-round-display-container">
+                <span class="round-label">ラウンド</span>
+                <span id="result-round-counter-main" class="round-value"></span>
+            </div>
+            <h2 id="round-title">Round 1</h2> 
+            <div id="result-map"></div>
+            <div class="result-summary">
+                <p class="score" id="score-display">0 ポイント</p>
+                <div class="score-bar-container">
+                    <div class="score-bar" id="score-bar"></div>
+                </div>
+                <p class="distance" id="distance-display">あなたの推測は正しい場所から 0m でした。</p>
+            </div>
+            <div class="trivia-box">
+                <h3>スポット情報</h3>
+                <p id="spot-info">ここに正解の場所に関する解説が表示されます。</p>
+            </div>
+            <button id="next-round-button">次のラウンドへ</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
