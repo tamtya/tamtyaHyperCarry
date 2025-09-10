@@ -38,6 +38,7 @@ const resultRoundCounterMain = document.getElementById('result-round-counter-mai
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
+    shuffleArray(problems);
     initMiniMap();
     setupRound();
     guessButton.addEventListener('click', () => handleGuess(false));
@@ -205,4 +206,15 @@ function handleNextRound() {
     gameView.classList.remove('hidden');
     document.getElementById('score-bar').style.width = '0%'; // スコアバーをリセット
     setupRound();
+}
+
+/**
+ * 配列の中身をシャッフルするアルゴリズム
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
