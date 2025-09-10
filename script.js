@@ -46,6 +46,7 @@ const shutterButton = document.getElementById('shutter-button');
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
+    shuffleArray(problems);
     initMiniMap();
     setupRound();
 
@@ -53,10 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     geoguessrButton.addEventListener('click', () => startGame('home'));
 
     shutterButton.addEventListener('click', handleRealWorldGuess);
-    guessButton.addEventListener('click', () => handleGuess(false));
-    nextRoundButton.addEventListener('click', handleNextRound);
 });
-
+    
 // 秒を mm:ss 形式の文字列に変換する関数
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -342,4 +341,15 @@ function handleNextRound() {
     gameView.classList.remove('hidden');
     document.getElementById('score-bar').style.width = '0%'; // スコアバーをリセット
     setupRound();
+}
+
+/**
+ * 配列の中身をシャッフルするアルゴリズム
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
