@@ -46,14 +46,12 @@ const shutterButton = document.getElementById('shutter-button');
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
-    shuffleArray(problems);
-    initMiniMap();
-    setupRound();
-
     realWorldButton.addEventListener('click', () => startGame('real-world'));
-    geoguessrButton.addEventListener('click', () => startGame('home'));
+    geoguessrButton.addEventListener('click', () => startGame('geoguessr'));
 
     shutterButton.addEventListener('click', handleRealWorldGuess);
+    guessButton.addEventListener('click', () => handleGuess(false));
+    nextRoundButton.addEventListener('click', handleNextRound);
 });
     
 // 秒を mm:ss 形式の文字列に変換する関数
@@ -64,11 +62,18 @@ function formatTime(seconds) {
 }
 
 /**
- * タイマーを開始する変数
+ * タイマーを生成
  */
-function startTimer() {
+function createTimer() {
     timeLeft = roundDuration;
     timerDisplay.textContent = formatTime(timeLeft);
+    startTimer();
+}
+
+/**
+ * タイマーを残り時間から再開する
+ */
+function startTimer() {
     
     // 1秒ごとにタイマーを更新
     timerInterval = setInterval(() => {
@@ -124,7 +129,7 @@ function setupRound() {
         guessCoords = null;
     }
 
-    startTimer();//タイマ
+    // startTimer();//タイマ
 }
 
 /**
@@ -134,6 +139,8 @@ function startGame(mode) {
     currentGameMode = mode;
     modeSelectionView.style.display = 'none';
     gameView.classList.remove('hidden');
+    
+    shuffleArray(problems);
     
     // GeoGuessrモードの場合
     if (currentGameMode === 'geoguessr') {
@@ -150,6 +157,7 @@ function startGame(mode) {
     currentRound = 1;
     totalScore = 0;
     setupRound();
+    createTimer();
 }
 
 /**
@@ -184,15 +192,9 @@ function getGPSLocation() {
 
 
 /**
- * 決定ボタン押下時処理
+ * 決定ボタン押下時処理(家からつならんモードでの解答処理)
  */
 function handleGuess(isTimeUp) { 
-    // 場所が選択されているかどうかをチェックする
-    if (!isTimeUp && !guessCoords) {
-        alert("地図をクリックして場所を推測してください！");
-        return; // ここで処理を中断。タイマーは動き続けます。
-    }
-    
     stopTimer();
     
     let score = 0;
@@ -202,7 +204,10 @@ function handleGuess(isTimeUp) {
     //後日アラートではなくポップアップで実装
     if (isTimeUp) {
         alert("時間切れ！");
-        // スコアは0のまま
+        // スコア0で結果画面へ
+        const answerCoords = L.latLng(problems[currentRound - 1].coords);
+        showResult(0, Infinity, answerCoords);
+        return;
     } else if (!guessCoords) {
         alert("地図をクリックして場所を推測してください！");
         startTimer(); // タイマーを再開
@@ -281,6 +286,7 @@ function handleGeoguessrGuess(isTimeUp) {
  * 結果画面表示
  */
 function showResult(score, distance, answerCoords) {
+    stopTimer();
     // 画面切り替え
     gameView.classList.add('hidden');
     resultView.classList.remove('hidden');
@@ -347,6 +353,7 @@ function handleNextRound() {
     gameView.classList.remove('hidden');
     document.getElementById('score-bar').style.width = '0%'; // スコアバーをリセット
     setupRound();
+    createTimer();
 }
 
 /**
