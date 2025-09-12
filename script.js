@@ -43,12 +43,18 @@ const geoguessrButton = document.getElementById('home-button');
 const cameraContainer = document.getElementById('camera-container');
 const cameraFeed = document.getElementById('camera-feed');
 const shutterButton = document.getElementById('shutter-button');
+const backToMapButton = document.getElementById('back-to-map-button');
+const startCameraButton = document.getElementById('start-camera-button');
+const miniMapContent = document.getElementById('mini-map-container')
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
     realWorldButton.addEventListener('click', () => startGame('real-world'));
     geoguessrButton.addEventListener('click', () => startGame('geoguessr'));
 
+    startCameraButton.addEventListener('click', showCameraView);
+
+    backToMapButton.addEventListener('click',hideCameraView);
     shutterButton.addEventListener('click', handleRealWorldGuess);
     guessButton.addEventListener('click', () => handleGuess(false));
     nextRoundButton.addEventListener('click', handleNextRound);
@@ -92,16 +98,41 @@ function stopTimer() {
     clearInterval(timerInterval);
 }
 
+// --- カメラ表示・非表示 ---
+function showCameraView() {
+    stopTimer();
+    cameraContainer.classList.remove('hidden');
+    miniMapContent.classList.add('hidden');
+    startCameraButton.classList.add('hidden'); 
+    backToMapButton.classList.remove('hidden');
+    
+    startCamera();
+
+}
+
+function hideCameraView() {
+    stopCamera();
+    startTimer(); // タイマーを残り時間から再開
+    
+    gameView.classList.remove('hidden');
+    cameraContainer.classList.add('hidden');
+    miniMapContent.classList.remove('hidden'); 
+    startCameraButton.classList.remove('hidden');
+    backToMapButton.classList.add('hidden'); 
+}
+
 /**
  * ミニマップ初期化
  */
 function initMiniMap() {
+    miniMapContent.classList.remove('hidden');
     miniMap = L.map('mini-map', { crs: L.CRS.Simple, minZoom: -2 });
     const bounds = [[0, 0], [mapHeight, mapWidth]];
     L.imageOverlay('image/campusMap.png', bounds).addTo(miniMap);
     miniMap.fitBounds(bounds);
 
-    miniMap.on('click', (e) => {
+    if(currentGameMode==='geoguessr'){
+        miniMap.on('click', (e) => {
         console.log(e.latlng) 
         if (guessMarker) {
             guessMarker.setLatLng(e.latlng);
@@ -110,6 +141,8 @@ function initMiniMap() {
         }
         guessCoords = e.latlng;
     });
+    }
+    
 }
 
 /**
@@ -127,7 +160,7 @@ function setupRound() {
         if (guessMarker) guessMarker.remove();
         guessMarker = null;
         guessCoords = null;
-    }
+    } 
 
     // startTimer();//タイマ
 }
@@ -146,12 +179,17 @@ function startGame(mode) {
     if (currentGameMode === 'geoguessr') {
         initMiniMap();
         document.querySelector('.game-footer').style.display = 'flex'; // 推測UIを表示
+        startCameraButton.classList.add('hidden');
+        guessButton.classList.remove('hidden')
     } 
     // 現実探索モードの場合
     else if (currentGameMode === 'real-world') {
-        startCamera();
-        document.querySelector('.game-footer').style.display = 'none'; // 推測UIを非表示
-        gameBackground.style.display = 'block'; // お題画像は表示
+        initMiniMap();
+        
+        startCameraButton.classList.remove('hidden');
+        //startCamera();
+        document.querySelector('.game-footer').style.display = 'flex'; // 推測UIを非表示
+        //gameBackground.style.display = 'block'; // お題画像は表示
     }
 
     currentRound = 1;
@@ -170,6 +208,8 @@ async function startCamera() {
         });
         cameraContainer.classList.remove('hidden');
         cameraFeed.srcObject = stream;
+        miniMapContent.classList.add('hidden');
+        
     } catch (err) {
         console.error("カメラへのアクセスが拒否されました:", err);
         alert("カメラへのアクセスを許可してください。");
@@ -258,7 +298,6 @@ async function handleRealWorldGuess() {
 
 // GeoGuessrモードの解答処理 (旧handleGuess)
 function handleGeoguessrGuess(isTimeUp) {
-    // ... 以前のhandleGuessのロジックをここに ...
     stopTimer();
     
     let score = 0;
@@ -287,6 +326,7 @@ function handleGeoguessrGuess(isTimeUp) {
  */
 function showResult(score, distance, answerCoords) {
     stopTimer();
+    //stopCamera();
     // 画面切り替え
     gameView.classList.add('hidden');
     resultView.classList.remove('hidden');
@@ -347,6 +387,14 @@ function handleNextRound() {
         currentRound = 1;
         totalScore = 0;
     }
+
+    if (currentGameMode === 'real-world') {
+        cameraContainer.classList.add('hidden');
+        miniMapContent.classList.remove('hidden');
+        startCameraButton.classList.remove('hidden');
+        guessButton.classList.add('hidden');
+        backToMapButton.classList.add('hidden'); 
+    }
     
     // 画面切り替えと次のラウンドの準備
     resultView.classList.add('hidden');
@@ -365,4 +413,11 @@ function shuffleArray(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+
+function stopCamera() {
+    if (cameraFeed.srcObject) {
+        cameraFeed.srcObject.getTracks().forEach(track => track.stop());
+        cameraFeed.srcObject = null;
+    }
 }
