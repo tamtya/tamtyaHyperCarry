@@ -90,11 +90,37 @@ const roundDuration = 90; //タイマ秒
 //ランダムは実装がわからないので保留
 //仮の座標を設定済み
 const problems = [
-    { image: "image/West.jpg", coords: [34.755223, 135.648315], info: "西門" },
-    { image: "image/JISEDAI.jpg", coords: [34.755223, 135.648315], info: "次世代食堂" },
-    { image: "image/Academic.jpg", coords: [34.755223, 135.648315], info: "アカデミックシアター" },
-    { image: "image/E_Ground.jpg", coords: [34.755223, 135.648315], info: "Eキャンパス人工芝" },
-    { image: "image/E_Kan.jpg", coords: [34.755223, 135.648315], info: "E館" }
+    { image: "image/West.jpg", coords: [34.6510927, 135.5895220], info: "西門" },
+    { image: "image/11_hall2.jpg", coords: [34.6514708, 135.5883653], info: "11月ホール" },
+    { image: "image/academic.jpg", coords: [34.6504329, 135.5876499], info: "アカデミックシアター\nちょっと意地悪な写真かも…" },
+    { image: "image/bldg_6.jpg", coords: [34.6501224, 135.5877816], info: "6号館" },
+    { image: "image/bldg_7.jpg", coords: [34.6503019, 135.5879721], info: "7号館" },
+    { image: "image/bldg_10.jpg", coords: [34.6511125, 135.5873568], info: "10号館" },
+    { image: "image/bldg_17.jpg", coords: [34.6520199, 135.5873461], info: "17号館" },
+    { image: "image/bldg_18_kita.jpg", coords: [34.6513715, 135.5864573], info: "18号館北棟" },
+    { image: "image/bldg_18_south.jpg", coords: [34.6506500, 135.5865834], info: "18号館南棟" },
+    { image: "image/bldg_19.jpg", coords: [34.6520790, 135.5881575], info: "19号館" },
+    { image: "image/bldg_20.jpg", coords: [34.6520770, 135.5875298], info: "20号館" },
+    { image: "image/bldg_21.jpg", coords: [34.6520387, 135.5866122], info: "21号館" },
+    { image: "image/bldg_22.jpg", coords: [34.6496124, 135.5867550], info: "22号館" },
+    { image: "image/bldg_31.jpg", coords: [34.6510555, 135.5876525], info: "31号館" },
+    { image: "image/bldg_33.jpg", coords: [34.6520205, 135.5878805], info: "33号館" },
+    { image: "image/bldg_38.jpg", coords: [34.6511567, 135.5883596], info: "38号館" },
+    { image: "image/bldg_39_1.jpg", coords: [34.6512405, 135.5879345], info: "39号館_正面入り口" },
+    { image: "image/bldg_39_2.jpg", coords: [34.6516515, 135.5882514], info: "39号館" },
+    { image: "image/bldg_a.jpg", coords: [34.6508141, 135.5902533], info: "A館" },
+    { image: "image/bldg_b.jpg", coords: [34.6510996, 135.5903767], info: "B館" },
+    { image: "image/bldg_c.jpg", coords: [34.6514667, 135.5899066], info: "C館" },
+    { image: "image/bldg_e.jpg", coords: [34.6513958, 135.5911374], info: "E館" },
+    { image: "image/bldg_g.jpg", coords: [34.6510643, 135.5912175], info: "G館" },
+    { image: "image/Cafe.jpg", coords: [34.6510971, 135.5898044], info: "ブロッサムカフェ" },
+    { image: "image/e_3.jpg", coords: [34.6521355, 135.5864965], info: "英語村" },
+    { image: "image/E_Ground.jpg", coords: [34.6510097, 135.5918341], info: "Eキャンパスグラウンド" },
+    { image: "image/Honkan.jpg", coords: [34.6499839, 135.5867473], info: "大学本館" },
+    { image: "image/KUDOS.jpg", coords: [34.6510138, 135.5910871], info: "キューダス" },
+    { image: "image/samotorake.jpg", coords: [34.6513746, 135.5906442], info: "B館にあるサモトラケのニケ像" },
+    { image: "image/sekou.jpg", coords: [34.6517201, 135.5865679], info: "世耕弘一銅像" },
+    { image: "image/senshin_niwa.jpg", coords: [34.6517527, 135.5870621], info: "洗心の庭" }
 ];
 
 //変数
