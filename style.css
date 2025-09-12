@@ -52,6 +52,7 @@ body, html {
     align-items: center;
     box-sizing: border-box;
     background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    z-index: 60;
 }
 
 .header-right {
@@ -288,7 +289,7 @@ body, html {
     width: 100%;
     height: 100%;
     background-color: black;
-    z-index: 5;/*多分これうまくいかない*/
+    z-index: 50;/*多分これうまくいかない*/
 }
 
 #camera-feed {
@@ -309,4 +310,31 @@ body, html {
     border: 5px solid rgba(0,0,0,0.3);
     cursor: pointer;
     z-index: 10;
+}
+
+#back-to-map-button {
+    position: absolute;
+    top: 25px;
+    left: 20px;
+    padding: 10px 15px;
+    background-color: rgba(0,0,0,0.6);
+    color: white;
+    border: 1px solid white;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 70;
+}
+
+#start-camera-button {
+    margin-top: 15px;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #2575fc;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
 }

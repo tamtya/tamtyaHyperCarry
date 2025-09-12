@@ -31,9 +31,12 @@
     <div id="game-view" class="hidden">
         <div id="camera-container" class="hidden">
             <video id="camera-feed" autoplay playsinline></video>
+            
             <button id="shutter-button">解答</button>
+            
         </div>
         <div class="game-background"></div>
+        
 
         <header class="game-header">
             <div class="header-left"></div>
@@ -48,11 +51,14 @@
             </div>
         </header>
 
+        <button id="back-to-map-button" class="hidden">マップに戻る</button>
+
         <div class="game-footer">
-            <div id="mini-map-container">
+            <div id="mini-map-container" class="hidden">
                 <div id="mini-map"></div>
             </div>
-            <button id="guess-button">ここに決定</button>
+            <button id="start-camera-button" class="hidden">写真を撮る</button>
+            <button id="guess-button" class="hidden">ここに決定</button>
         </div>
     </div>
 
