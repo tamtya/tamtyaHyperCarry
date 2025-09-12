@@ -1,3 +1,51 @@
+import { 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// HTMLから認証関連の要素を取得
+const authView = document.getElementById('auth-view');
+const userInfoView = document.getElementById('user-info-view');
+const emailInput = document.getElementById('email-input');
+const passwordInput = document.getElementById('password-input');
+const loginButton = document.getElementById('login-button');
+const signupButton = document.getElementById('signup-button');
+const logoutButton = document.getElementById('logout-button');
+const userEmailDisplay = document.getElementById('user-email-display');
+
+// ◆ 新規登録ボタンの処理
+signupButton.addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    createUserWithEmailAndPassword(window.auth, email, password)
+        .then(userCredential => {
+            console.log("ユーザー登録成功:", userCredential.user);
+        })
+        .catch(error => {
+            alert("エラー: " + error.message);
+        });
+});
+
+// ◆ ログインボタンの処理
+loginButton.addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    signInWithEmailAndPassword(window.auth, email, password)
+        .then(userCredential => {
+            console.log("ログイン成功:", userCredential.user);
+        })
+        .catch(error => {
+            alert("エラー: " + error.message);
+        });
+});
+
+// ◆ ログアウトボタンの処理
+logoutButton.addEventListener('click', () => {
+    signOut(window.auth).catch(error => console.error("ログアウトエラー", error));
+});
+
 //フィールド
 const mapWidth = 1200;
 const mapHeight = 900;
@@ -46,6 +94,23 @@ const shutterButton = document.getElementById('shutter-button');
 
 //初期化
 document.addEventListener('DOMContentLoaded', () => {
+    onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+            // ログインしている場合
+            authView.classList.add('hidden');          // ログインフォームを隠す
+            userInfoView.classList.remove('hidden');   // ユーザー情報とログアウトボタンを表示
+            modeSelectionView.classList.remove('hidden'); // モード選択画面を表示
+            userEmailDisplay.textContent = `ログイン中: ${user.email}`;
+
+        } else {
+            // ログアウトしている場合
+            authView.classList.remove('hidden');       // ログインフォームを表示
+            userInfoView.classList.add('hidden');      // ユーザー情報を隠す
+            modeSelectionView.classList.add('hidden'); // モード選択画面を隠す
+            gameView.classList.add('hidden');          // ゲーム画面を隠す
+            resultView.classList.add('hidden');        // リザルト画面を隠す
+        }
+    });
     realWorldButton.addEventListener('click', () => startGame('real-world'));
     geoguessrButton.addEventListener('click', () => startGame('geoguessr'));
 
