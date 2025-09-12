@@ -24,7 +24,23 @@ signupButton.addEventListener('click', () => {
             console.log("ユーザー登録成功:", userCredential.user);
         })
         .catch(error => {
-            alert("エラー: " + error.message);
+            let message = "";
+
+            switch (error.code) {
+                case "auth/email-already-in-use":
+                    message = "このメールアドレスは既に登録されています。";
+                    break;
+                case "auth/invalid-email":
+                    message = "無効なメールアドレス形式です。";
+                    break;
+                case "auth/weak-password":
+                    message = "パスワードは6文字以上でなければなりません。";
+                    break;
+                default:
+                    message = "不明なエラーが発生しました。";
+                    break;
+            }
+            alert(message);
         });
 });
 
@@ -37,7 +53,23 @@ loginButton.addEventListener('click', () => {
             console.log("ログイン成功:", userCredential.user);
         })
         .catch(error => {
-            alert("エラー: " + error.message);
+            let message = "";
+
+            switch (error.code) {
+                case "auth/invalid-email":
+                    message = "無効なメールアドレス形式です。";
+                    break;
+                case "auth/user-not-found":
+                    message = "メールアドレスが違います。";
+                    break;
+                case "auth/wrong-password":
+                    message = "パスワードが違います。";
+                    break;
+                default:
+                    message = "不明なエラーが発生しました。";
+                    break;
+            }
+            alert(message);
         });
 });
 
@@ -351,6 +383,7 @@ function handleGeoguessrGuess(isTimeUp) {
  * 結果画面表示
  */
 function showResult(score, distance, answerCoords) {
+    userInfoView.classList.add('hidden');
     stopTimer();
     // 画面切り替え
     gameView.classList.add('hidden');
@@ -405,6 +438,7 @@ function showResult(score, distance, answerCoords) {
  * 次ラウンドへ
  */
 function handleNextRound() {
+    userInfoView.classList.remove('hidden');
     currentRound++;
     if (currentRound > totalRounds) {
         alert(`ゲーム終了！\n合計スコア: ${totalScore}点`);
