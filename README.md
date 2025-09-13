@@ -1,5 +1,5 @@
 # tamtyaHyperCarry
-<img width="159" height="187" alt="スクリーンショット 2025-09-12 15 01 14" src="https://github.com/user-attachments/assets/e9458cd3-b496-4092-a8a6-71468621f24d" />
+
 ---
 
 ## 概要
