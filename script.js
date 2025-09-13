@@ -2,8 +2,10 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
     onAuthStateChanged,
-    signOut 
+    signOut,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, updateDoc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // HTMLから認証関連の要素を取得
 const authView = document.getElementById('auth-view');
@@ -14,34 +16,55 @@ const loginButton = document.getElementById('login-button');
 const signupButton = document.getElementById('signup-button');
 const logoutButton = document.getElementById('logout-button');
 const userEmailDisplay = document.getElementById('user-email-display');
+const usernameInput = document.getElementById('username-input');
 
 // ◆ 新規登録ボタンの処理
-signupButton.addEventListener('click', () => {
+signupButton.addEventListener('click', async() => {
+    const username = usernameInput.value;
     const email = emailInput.value;
     const password = passwordInput.value;
-    createUserWithEmailAndPassword(window.auth, email, password)
-        .then(userCredential => {
-            console.log("ユーザー登録成功:", userCredential.user);
-        })
-        .catch(error => {
-            let message = "";
 
-            switch (error.code) {
-                case "auth/email-already-in-use":
-                    message = "このメールアドレスは既に登録されています。";
-                    break;
-                case "auth/invalid-email":
-                    message = "無効なメールアドレス形式です。";
-                    break;
-                case "auth/weak-password":
-                    message = "パスワードは6文字以上でなければなりません。";
-                    break;
-                default:
-                    message = "不明なエラーが発生しました。";
-                    break;
-            }
-            alert(message);
+    if (!username) {
+        alert("ユーザーネームを入力してください。");
+        return;
+    }
+    try {
+        const userCredential = await createUserWithEmailAndPassword(window.auth, email, password);
+        const user = userCredential.user;
+
+        await updateProfile(user, { displayName: username });
+        
+        const userDocRef = doc(window.db, "users", user.uid);
+        await setDoc(userDocRef, {
+            username: username,
+            highScore: 0,
+            createdAt: new Date()
         });
+
+        console.log("ユーザー登録とデータ保存に成功！");
+
+    } catch (error) {
+        // ★★★ この一行を追加して、エラーの詳細を確認する ★★★
+        console.error("新規登録エラーの詳細:", error); 
+
+        let message = "";
+        switch (error.code) {
+            case "auth/email-already-in-use":
+                message = "このメールアドレスは既に登録されています。";
+                break;
+            case "auth/invalid-email":
+                message = "無効なメールアドレス形式です。";
+                break;
+            case "auth/weak-password":
+                message = "パスワードは6文字以上でなければなりません。";
+                break;
+            default:
+                // ★★★ デフォルトのエラーメッセージも、より具体的にする ★★★
+                message = "登録中にエラーが発生しました。コンソールで詳細を確認してください。";
+                break;
+        }
+        alert(message);
+    }
 });
 
 // ◆ ログインボタンの処理
@@ -135,15 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
             authView.classList.add('hidden');          // ログインフォームを隠す
             userInfoView.classList.remove('hidden');   // ユーザー情報とログアウトボタンを表示
             modeSelectionView.classList.remove('hidden'); // モード選択画面を表示
+            resultView.classList.add('hidden');        // リザルト画面を隠す
+            gameView.classList.add('hidden');          // ゲーム画面を隠す
             userEmailDisplay.textContent = `ログイン中: ${user.email}`;
 
         } else {
             // ログアウトしている場合
+            resultView.classList.add('hidden');
             authView.classList.remove('hidden');       // ログインフォームを表示
             userInfoView.classList.add('hidden');      // ユーザー情報を隠す
             modeSelectionView.classList.add('hidden'); // モード選択画面を隠す
             gameView.classList.add('hidden');          // ゲーム画面を隠す
-            resultView.classList.add('hidden');        // リザルト画面を隠す
         }
     });
     realWorldButton.addEventListener('click', () => startGame('real-world'));
@@ -222,6 +247,10 @@ function hideCameraView() {
  * ミニマップ初期化
  */
 function initMiniMap() {
+    if (miniMap) {
+        miniMap.remove();
+        miniMap = null;
+    }
     miniMapContent.classList.remove('hidden');
     miniMap = L.map('mini-map', { crs: L.CRS.Simple, minZoom: -2 });
     const bounds = [[0, 0], [mapHeight, mapWidth]];
@@ -267,8 +296,9 @@ function setupRound() {
  */
 function startGame(mode) {
     currentGameMode = mode;
-    modeSelectionView.style.display = 'none';
+    modeSelectionView.classList.add('hidden');
     gameView.classList.remove('hidden');
+    backToMapButton.classList.add('hidden');
     
     shuffleArray(problems);
     
@@ -477,15 +507,49 @@ function showResult(score, distance, answerCoords) {
 /**
  * 次ラウンドへ
  */
-function handleNextRound() {
-    userInfoView.classList.remove('hidden');
+async function handleNextRound() {
     currentRound++;
+
+    // ゲーム終了の判定
     if (currentRound > totalRounds) {
         alert(`ゲーム終了！\n合計スコア: ${totalScore}点`);
-        // ここで最初に戻るなどの処理を追加
-        currentRound = 1;
-        totalScore = 0;
+        
+        const user = window.auth.currentUser;
+        if (user) {
+            try {
+                const userDocRef = doc(window.db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                // ★★★ ここが重要 ★★★
+                // まず .exists() でドキュメントの存在を必ず確認する
+                if (userDoc.exists()) {
+                    const currentHighScore = userDoc.data().highScore;
+                    // 現在のハイスコアより今回のスコアが高ければ更新
+                    if (totalScore > currentHighScore) {
+                        await updateDoc(userDocRef, {
+                            highScore: totalScore
+                        });
+                        alert(`ハイスコアを更新しました！ \nハイスコア: ${totalScore}点`);
+                    }
+                } else {
+                    // 本来は新規登録時に作成されるはずだが、もし存在しない場合のログ
+                    console.warn("このユーザーのドキュメントはまだFirestoreに存在しません。");
+                }
+
+            } catch (error) {
+                console.error("スコア記録中にエラーが発生しました:", error);
+                alert("エラーが発生したため、スコアを記録できませんでした。");
+            }
+        }
+        currentGameMode = null;
+        resultView.classList.add('hidden');         // リザルト画面を隠す
+        gameView.classList.add('hidden');           // ゲーム画面を隠す
+        modeSelectionView.classList.remove('hidden'); // モード選択画面を表示
+        userInfoView.classList.remove('hidden');    // ユーザー情報表示も再度表示
+        return;
     }
+
+    userInfoView.classList.remove('hidden');
 
     if (currentGameMode === 'real-world') {
         cameraContainer.classList.add('hidden');

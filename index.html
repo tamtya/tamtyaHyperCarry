@@ -11,24 +11,24 @@
 <body>
     <div id="auth-view">
         <h1>つならんへようこそ</h1>
-        <input type="email" id="email-input" placeholder="メールアドレス" />
+        <input type="text" id="username-input" placeholder="ユーザーネーム" />         <input type="email" id="email-input" placeholder="メールアドレス" />
         <input type="password" id="password-input" placeholder="パスワード" />
         <button id="login-button">ログイン</button>
         <button id="signup-button">新規登録</button>
     </div>
 
-    <div id="user-info-view" class="hidden">
+    <div id="user-info-view">
         <p id="user-email-display"></p>
         <button id="logout-button">ログアウト</button>
     </div>
 
-    <div id="mode-selection-view" class="hidden">
+    <div id="mode-selection-view">
         <h1>モードを選択してください</h1>
         <button id="real-world-button">現実世界でつならん</button>
         <button id="home-button">家からつならん</button>
     </div>
 
-    <div id="game-view" class="hidden">
+    <div id="game-view">
         <div id="camera-container" class="hidden">
             <video id="camera-feed" autoplay playsinline></video>
             
@@ -51,10 +51,10 @@
             </div>
         </header>
 
-        <button id="back-to-map-button" class="hidden">マップに戻る</button>
+        <button id="back-to-map-button">マップに戻る</button>
 
         <div class="game-footer">
-            <div id="mini-map-container" class="hidden">
+            <div id="mini-map-container">
                 <div id="mini-map"></div>
             </div>
             <button id="start-camera-button" class="hidden">写真を撮る</button>
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <div id="result-view" class="hidden">
+    <div id="result-view">
         <div class="result-content">
             <div id="result-round-display-container">
                 <span class="round-label">ラウンド</span>
@@ -89,6 +89,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Firebaseプロジェクトの設定情報
         const firebaseConfig = {
@@ -104,7 +105,7 @@
         const app = initializeApp(firebaseConfig);
         // script.jsで使えるように、初期化したauthオブジェクトをグローバル変数として設定
         window.auth = getAuth(app);
-
+        window.db = getFirestore(app);
         initializeAppCheck(app, {
             provider: new ReCaptchaV3Provider('6LemH8crAAAAAF0mwbBwoTPvu2sPtiQUBwXO0NYI'),
             isTokenAutoRefreshEnabled: true
