@@ -109,15 +109,43 @@ const maxScore = 5000; // 1ラウンドの最高得点
 const roundDuration = 90; //タイマ秒
 
 // 問題リスト
-//後日自分で撮った画像に置き換え
-//ランダムは実装がわからないので保留
-//仮の座標を設定済み
+//後日自分で撮った画像に置き換え(済)
+//ランダムは実装がわからないので保留(済)
+//仮の座標を設定済み(済)
+//座標入力完了済み(9/13)
+//絶対この管理方法間違ってるよ。
 const problems = [
-    { image: "image/West.jpg", coords: [34.755223, 135.648315], info: "西門" },
-    { image: "image/JISEDAI.jpg", coords: [34.755223, 135.648315], info: "次世代食堂" },
-    { image: "image/Academic.jpg", coords: [34.755223, 135.648315], info: "アカデミックシアター" },
-    { image: "image/E_Ground.jpg", coords: [34.755223, 135.648315], info: "Eキャンパス人工芝" },
-    { image: "image/E_Kan.jpg", coords: [34.755223, 135.648315], info: "E館" }
+    { image: "image/West.jpg", coords: [34.6510927, 135.5895220], info: "西門" },
+    { image: "image/11_hall2.jpg", coords: [34.6514708, 135.5883653], info: "11月ホール" },
+    { image: "image/academic.jpg", coords: [34.6504329, 135.5876499], info: "アカデミックシアター\nちょっと意地悪な写真かも…" },
+    { image: "image/bldg_6.jpg", coords: [34.6501224, 135.5877816], info: "6号館" },
+    { image: "image/bldg_7.jpg", coords: [34.6503019, 135.5879721], info: "7号館" },
+    { image: "image/bldg_10.jpg", coords: [34.6511125, 135.5873568], info: "10号館" },
+    { image: "image/bldg_17.jpg", coords: [34.6520199, 135.5873461], info: "17号館" },
+    { image: "image/bldg_18_kita.jpg", coords: [34.6513715, 135.5864573], info: "18号館北棟" },
+    { image: "image/bldg_18_south.jpg", coords: [34.6506500, 135.5865834], info: "18号館南棟" },
+    { image: "image/bldg_19.jpg", coords: [34.6520790, 135.5881575], info: "19号館" },
+    { image: "image/bldg_20.jpg", coords: [34.6520770, 135.5875298], info: "20号館" },
+    { image: "image/bldg_21.jpg", coords: [34.6520387, 135.5866122], info: "21号館" },
+    { image: "image/bldg_22.jpg", coords: [34.6496124, 135.5867550], info: "22号館" },
+    { image: "image/bldg_31.jpg", coords: [34.6510555, 135.5876525], info: "31号館" },
+    { image: "image/bldg_33.jpg", coords: [34.6520205, 135.5878805], info: "33号館" },
+    { image: "image/bldg_38.jpg", coords: [34.6511567, 135.5883596], info: "38号館" },
+    { image: "image/bldg_39_1.jpg", coords: [34.6512405, 135.5879345], info: "39号館_正面入り口" },
+    { image: "image/bldg_39_2.jpg", coords: [34.6516515, 135.5882514], info: "39号館" },
+    { image: "image/bldg_a.jpg", coords: [34.6508141, 135.5902533], info: "A館" },
+    { image: "image/bldg_b.jpg", coords: [34.6510996, 135.5903767], info: "B館" },
+    { image: "image/bldg_c.jpg", coords: [34.6514667, 135.5899066], info: "C館" },
+    { image: "image/bldg_e.jpg", coords: [34.6513958, 135.5911374], info: "E館" },
+    { image: "image/bldg_g.jpg", coords: [34.6510643, 135.5912175], info: "G館" },
+    { image: "image/Cafe.jpg", coords: [34.6510971, 135.5898044], info: "ブロッサムカフェ" },
+    { image: "image/e_3.jpg", coords: [34.6521355, 135.5864965], info: "英語村" },
+    { image: "image/E_Ground.jpg", coords: [34.6510097, 135.5918341], info: "Eキャンパスグラウンド" },
+    { image: "image/Honkan.jpg", coords: [34.6499839, 135.5867473], info: "大学本館" },
+    { image: "image/KUDOS.jpg", coords: [34.6510138, 135.5910871], info: "キューダス" },
+    { image: "image/samotorake.jpg", coords: [34.6513746, 135.5906442], info: "B館にあるサモトラケのニケ像" },
+    { image: "image/sekou.jpg", coords: [34.6517201, 135.5865679], info: "世耕弘一銅像" },
+    { image: "image/senshin_niwa.jpg", coords: [34.6517527, 135.5870621], info: "洗心の庭" }
 ];
 
 //変数
@@ -252,14 +280,27 @@ function initMiniMap() {
         miniMap = null;
     }
     miniMapContent.classList.remove('hidden');
-    miniMap = L.map('mini-map', { crs: L.CRS.Simple, minZoom: -2 });
-    const bounds = [[0, 0], [mapHeight, mapWidth]];
-    L.imageOverlay('image/campusMap.png', bounds).addTo(miniMap);
-    miniMap.fitBounds(bounds);
 
-    if(currentGameMode==='geoguessr'){
-        miniMap.on('click', (e) => {
-        console.log(e.latlng) 
+    // 既に初期化済みなら何もしない
+    if (miniMap) {
+        miniMap.remove();
+    }
+
+    // 標準のWeb地図として初期化
+    miniMap = L.map('mini-map');
+
+    // 背景にOpenStreetMapを表示
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
+
+    const campusCenter = [34.65132381198825, 135.589292049408]; // 例：近畿大学東大阪キャンパスの中心あたり
+    const initialZoom = 17; // ズームレベル（16〜18くらいが丁度よい）
+    miniMap.setView(campusCenter, initialZoom);
+
+
+    // マップをクリックしたときの処理
+    miniMap.on('click', (e) => {
+        // e.latlng にクリック地点の「現実の緯度・経度」が入ります
+        console.log("地図クリック座標:", e.latlng);
         if (guessMarker) {
             guessMarker.setLatLng(e.latlng);
         } else {
@@ -267,7 +308,6 @@ function initMiniMap() {
         }
         guessCoords = e.latlng;
     });
-    }
     
 }
 
@@ -367,6 +407,8 @@ function handleGuess(isTimeUp) {
     let score = 0;
     let distance = Infinity; // 距離は無限大としておく
     const answerCoords = L.latLng(currentProblem.coords);
+   console.log("【解答時】あなたの推測座標:", guessCoords);
+    console.log("【解答時】正解の座標:", answerCoords);
 
     //後日アラートではなくポップアップで実装
     if (isTimeUp) {
@@ -380,8 +422,18 @@ function handleGuess(isTimeUp) {
         startTimer(); // タイマーを再開
         return;
     } else {
-        distance = miniMap.distance(guessCoords, answerCoords);
-        score = Math.round(maxScore * Math.exp(-0.01 * distance));
+        // distance = miniMap.distance(guessCoords, answerCoords);
+        // score = Math.round(maxScore * Math.exp(-0.01 * distance));
+        // ▼▼▼ 変更点: クリックされた緯度・経度と、正解の緯度・経度の距離を計算 ▼▼▼
+        distance = guessCoords.distanceTo(answerCoords); // 単位はメートル
+        
+        // メートルに合わせたスコア計算式
+        if (distance <= 20) { // 20m以内なら満点
+            score = maxScore;
+        } else {
+            score = Math.round(maxScore * Math.exp(-0.005 * (distance - 20)));
+        }
+        if (score < 0) score = 0;
     }
     
     totalScore += score;
@@ -423,34 +475,6 @@ async function handleRealWorldGuess() {
     }
 }
 
-// GeoGuessrモードの解答処理 (旧handleGuess)
-function handleGeoguessrGuess(isTimeUp) {
-    stopTimer();
-    
-    let score = 0;
-    let distance = Infinity; // 距離は無限大としておく
-    const answerCoords = L.latLng(currentProblem.coords[0] / 10000, currentProblem.coords[1] / 10000); //擬似座標
-
-    //後日アラートではなくポップアップで実装
-    if (isTimeUp) {
-        alert("時間切れ！");
-        // スコアは0のまま
-    } else if (!guessCoords) {
-        alert("地図をクリックして場所を推測してください！");
-        startTimer(); // タイマーを再開
-        return;
-    } else {
-        distance = miniMap.distance(guessCoords, answerCoords);
-        score = Math.round(maxScore * Math.exp(-0.01 * distance));
-    }
-    
-    totalScore += score;
-    showResult(score, distance, answerCoords);
-}
-
-/**
- * 結果画面表示
- */
 function showResult(score, distance, answerCoords) {
     userInfoView.classList.add('hidden');
     stopTimer();
@@ -484,24 +508,47 @@ function showResult(score, distance, answerCoords) {
         scoreBar.style.width = `${(score / maxScore) * 100}%`;
     }, 100);
 
-    if (!resultMap) {
-        resultMap = L.map('result-map', { crs: L.CRS.Simple, minZoom: -2 });
-        const bounds = [[0, 0], [mapHeight, mapWidth]];
-        L.imageOverlay('image/campusMap.png', bounds).addTo(resultMap);
-        resultMap.fitBounds(bounds);
-    } else {
-        resultMap.eachLayer(layer => { if (layer instanceof L.Marker || layer instanceof L.Polyline) layer.remove() });
+    if (resultMap) {
+        resultMap.remove();
+        resultMap = null;
     }
 
+    // マップを初期化
+    resultMap = L.map('result-map');
+
+    // 背景にOpenStreetMapの世界地図を表示
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(resultMap);
+
+    // 正解の場所にマーカーを立てる
+    const answerMarker = L.marker(answerCoords).addTo(resultMap).bindPopup("正解の場所");
+
+    // もしユーザーの推測地点があれば（時間切れでなければ）
     if (guessCoords) { 
+        // 推測した場所にもマーカーを立てる
         L.marker(guessCoords).addTo(resultMap).bindPopup("あなたの推測");
-        L.polyline([guessCoords, answerCoords], { color: 'white', weight: 2, dashArray: '5, 10' }).addTo(resultMap);
-        const resultBounds = L.latLngBounds([guessCoords, answerCoords]);
-        resultMap.fitBounds(resultBounds.pad(0.2));
+        
+        // 2点間に線を引く
+        L.polyline([guessCoords, answerMarker], { color: 'white', weight: 2, dashArray: '5, 10' }).addTo(resultMap);
+        
+        // 2つのマーカーが画面に収まるように、地図の表示範囲とズームを自動調整
+        const resultBounds = L.latLngBounds([guessCoords, answerMarker]);
+        resultMap.fitBounds(resultBounds.pad(0.2)); // pad(0.2)で少し余白を持たせる
+
     } else {
-        resultMap.setView(answerCoords, -1); // 推測地点がない場合は正解地点を中央に
+        // 時間切れなどで推測がない場合は、正解地点を中央に表示
+        resultMap.setView(answerMarker, 16); // ズームレベル16
+        L.marker(answerMarker).addTo(resultMap).bindPopup("正解の場所").openPopup();
     }
-    L.marker(answerCoords).addTo(resultMap).bindPopup("正解の場所").openPopup();
+
+    // 結果画面が表示された後に地図のサイズを再計算させる（表示崩れ防止）
+    setTimeout(() => {
+        if (resultMap) {
+            resultMap.invalidateSize();
+        }
+    }, 10);
+
 }
 
 /**
