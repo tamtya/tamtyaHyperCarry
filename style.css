@@ -264,20 +264,106 @@ body, html {
 
 /*モード選択画面*/
 #mode-selection-view {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    //font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+    background: radial-gradient(ellipse at center, #8e9eab, #5c6770);
+    color: #4e4e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 全体を囲むコンテナ */
+.container {
+    display: flex; /* Flexboxを有効にする */
+    flex-direction: column; /* 要素を縦方向に並べる */
+    align-items: center; /* 横方向の中央揃え */
+}
+
+/* 2つのボタンを横並びにするコンテナ */
+.card-container {
+    display: flex;
+    gap: 30px; /* ボタン間のスペース */
+    margin-bottom: 30px;
+}
+
+.real-world-button {
+    border: none;
+    margin: 0;
+    font-family: inherit; /* 親要素のフォントを継承 */
+    text-align: center;
+    appearance: none; /* OSやブラウザのデフォルトUIを無効化 */
+    /* ▲▲▲ ここまで ▲▲▲ */
+    
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 240px;
+    height: 2000px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px 5px rgba(173, 216, 230, 0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-#mode-selection-view button {
-    padding: 15px 30px;
-    font-size: 20px;
-    margin: 10px;
+.card {
+    /* ▼▼▼ ボタンのデフォルトスタイルをリセットするための設定 ▼▼▼ */
+    border: none;
+    margin: 0;
+    font-family: inherit; /* 親要素のフォントを継承 */
+    text-align: center;
+    appearance: none; /* OSやブラウザのデフォルトUIを無効化 */
+    /* ▲▲▲ ここまで ▲▲▲ */
+    
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 400px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
+    box-shadow: 0 0 20px 5px rgba(173, 216, 230, 0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* ホバー時のスタイル */
+.card:hover {
+    transform: scale(1.05); /* 少し大きくする */
+    box-shadow: 0 0 30px 10px rgba(173, 216, 230, 0.9); /* 光を強くする */
+}
+
+/* 画像アイコンのスタイル */
+.card-icon {
+    height: 60px;
+    width: auto;
+    margin-bottom: 20px;
+}
+
+/* ボタン内のテキスト */
+.card p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #002b6d;
+}
+
+/* 下部のテキスト */
+.prompt-text {
+    font-size: 35px;
+    font-weight: bold;
+    color: #002b6d;
+    font-weight: 500;
+}
+
 
 /*カメラ関連*/
 #camera-container {
@@ -337,6 +423,12 @@ body, html {
     transition: transform 0.2s;
 }
 
+#user-info-view {
+    display: flex;
+    gap: 30px; /* ボタン間のスペース */
+    margin-bottom: 5px;
+}
+  
 #result-view.hidden {
     display: none;
 }

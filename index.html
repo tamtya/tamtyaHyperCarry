@@ -22,17 +22,28 @@
         <button id="logout-button">ログアウト</button>
     </div>
 
-    <div id="mode-selection-view">
-        <h1>モードを選択してください</h1>
-        <button id="real-world-button">現実世界でつならん</button>
-        <button id="home-button">家からつならん</button>
+    <div id="mode-selection-view" class="hidden">
+        <div class="container">
+            <div class="card-container">
+                <button id="real-world-button" class="card">
+                    <img src="image/houi.png" alt="現実探索" class="card-icon">
+                    <p>近大でつならん</p>
+                </button>
+                
+                <button id="home-button" class="card">
+                    <img src="image/home.svg" alt="どこからでもつならん" class="card-icon">
+                    <p>どこからでもつならん</p>
+                </button>
+            </div>
+            <p class="prompt-text">モードをお選びください</p>
+        </div>
     </div>
 
     <div id="game-view">
         <div id="camera-container" class="hidden">
             <video id="camera-feed" autoplay playsinline></video>
             
-            <button id="shutter-button">解答</button>
+            <button id="shutter-button"></button>
             
         </div>
         <div class="game-background"></div>

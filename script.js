@@ -526,15 +526,10 @@ function showResult(score, distance, answerCoords) {
 
     // もしユーザーの推測地点があれば（時間切れでなければ）
     if (guessCoords) { 
-        // 推測した場所にもマーカーを立てる
         L.marker(guessCoords).addTo(resultMap).bindPopup("あなたの推測");
-        
-        // 2点間に線を引く
-        L.polyline([guessCoords, answerMarker], { color: 'white', weight: 2, dashArray: '5, 10' }).addTo(resultMap);
-        
-        // 2つのマーカーが画面に収まるように、地図の表示範囲とズームを自動調整
-        const resultBounds = L.latLngBounds([guessCoords, answerMarker]);
-        resultMap.fitBounds(resultBounds.pad(0.2)); // pad(0.2)で少し余白を持たせる
+        L.polyline([guessCoords, answerCoords], { color: 'white', weight: 2, dashArray: '5, 10' }).addTo(resultMap);
+        const resultBounds = L.latLngBounds([guessCoords, answerCoords]);
+        resultMap.fitBounds(resultBounds.pad(0.2));s
 
     } else {
         // 時間切れなどで推測がない場合は、正解地点を中央に表示
