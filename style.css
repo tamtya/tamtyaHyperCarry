@@ -20,8 +20,6 @@ body, html {
 /* 汎用クラス */
 .hidden {
     display: none;
-    visibility: hidden;
-    opacity: 0; 
 }
 
 /* ゲーム画面 */
@@ -429,4 +427,12 @@ body, html {
     display: flex;
     gap: 30px; /* ボタン間のスペース */
     margin-bottom: 5px;
+}
+  
+#result-view.hidden {
+    display: none;
+}
+
+#mode-selection-view.hidden {
+    display: none;
 }
