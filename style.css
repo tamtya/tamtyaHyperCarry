@@ -424,3 +424,9 @@ body, html {
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     transition: transform 0.2s;
 }
+
+#user-info-view {
+    display: flex;
+    gap: 30px; /* ボタン間のスペース */
+    margin-bottom: 5px;
+}
